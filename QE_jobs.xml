@@ -1,0 +1,49 @@
+<WaNoTemplate>
+    <WaNoMeta>
+        <Author>
+            <Name> J. Schaarschmidt </Name>
+        </Author>
+
+        <Description>
+            This script is utilized to perform Quantum ESPRESSO (QE) calculations for two main types of jobs: relaxation of crystal structures and energy calculation.
+        </Description>
+
+    </WaNoMeta>
+
+    <WaNoRoot name="QE_jobs">
+        <WaNoFile logical_filename="structure.yml" name="Structure file">Structure file</WaNoFile>
+
+        <WaNoDropDown name="Type of job">
+            <Entry id="0" chosen="True">Relaxation</Entry>
+            <Entry id="1">Calculation energy</Entry>
+        </WaNoDropDown>
+
+        <WaNoBool name="If Calculation energy">False</WaNoBool>
+        <WaNoFile logical_filename="structure_strain.traj" visibility_condition="%s == True"
+        visibility_var_path="If Calculation energy" name="Structure strain">Structure strain</WaNoFile>
+
+
+        <WaNoBool name="Your path to the pseudopotential files" description="You can specify your own path to the pseudopotential files">False</WaNoBool>
+        <WaNoString name="custom_pseudopotentials_path" visibility_condition="%s == True"
+        visibility_var_path="Your path to the pseudopotential files">Enter the path to the pseudopotentials</WaNoString>
+
+
+    </WaNoRoot>
+
+    <WaNoExecCommand>
+        export NANOVER=V4
+    	source $NANOMATCH/$NANOVER/local_anaconda/bin/activate
+        conda activate qe
+        export PSEUDOPOTENTIALS_PATH="{{- wano.pseudopotentials_path -}}"
+        python QE_jobs.py
+    </WaNoExecCommand>
+
+    <WaNoInputFiles>
+        <WaNoInputFile logical_filename="QE_jobs.py">QE_jobs.py</WaNoInputFile>
+    </WaNoInputFiles>
+
+    <WaNoOutputFiles>
+        <WaNoOutputFile>output.pwi</WaNoOutputFile>
+        <WaNoOutputFile>output.pwo</WaNoOutputFile>
+    </WaNoOutputFiles>
+</WaNoTemplate>

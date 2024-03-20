@@ -1,0 +1,17 @@
+{
+    "workflow_environment":"SimStack",
+    "title": "QE_jobs",
+    "description": "This script is utilized to perform Quantum ESPRESSO (QE) calculations for two main types of jobs: relaxation of crystal structures and energy calculation.",
+    "authors": [
+        "J. Schaarschmidt",
+        "A. Buldin"
+    ],
+    "version": "0.0.1",
+    "logo": "QE_jobs.png",
+    "keywords": [
+        "SimStack",
+        "WaNo",
+        "QE_jobs",
+        "Quantum Espresso"
+    ]
+}
