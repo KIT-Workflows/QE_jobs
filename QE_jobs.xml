@@ -18,9 +18,8 @@
             <Entry id="1">Calculation energy</Entry>
         </WaNoDropDown>
 
-        <WaNoBool name="If Calculation energy">False</WaNoBool>
-        <WaNoFile logical_filename="structure_strain.traj" visibility_condition="%s == True"
-        visibility_var_path="If Calculation energy" name="Structure strain">Structure strain</WaNoFile>
+        <WaNoFile logical_filename="structure_strain.traj" visibility_condition="'%s' == 'Calculation energy'"
+        visibility_var_path="Type of job" name="Structure strain">Structure strain</WaNoFile>
 
 
         <WaNoBool name="Your path to the pseudopotential files" description="You can specify your own path to the pseudopotential files">False</WaNoBool>
