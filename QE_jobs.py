@@ -38,7 +38,7 @@ def run_quantum_espresso(input_file, output_file, pseudopotentials_path):
         subprocess.run(command, stdout=file, stderr=subprocess.STDOUT)
 
 
-def create_relax_pwi(element, lattice_param, cubic, crystal, kpts, output_filename,
+def create_relax_pwi(element, lattice_param, cubic, kpts, output_filename,
                      pseudopotentials_path, pseudopotentials_dict):
     """
     Creates a Quantum ESPRESSO input file ('output.pwi') for a crystal structure relaxation.
@@ -47,7 +47,6 @@ def create_relax_pwi(element, lattice_param, cubic, crystal, kpts, output_filena
     element (str): The chemical symbol of the element to create the bulk structure.
     lattice_param (float): The lattice parameter for the bulk structure.
     cubic (bool): Flag to determine if the structure should be cubic.
-    crystal (str): The crystal type, used by ASE.
     kpts (tuple): A tuple representing the k-points grid (e.g., (3, 3, 3)).
     pseudopotentials_path (str): The path to the directory containing pseudopotentials.
     pseudopotentials_dict (dict): Dictionary of element-symbol to pseudopotential filename mappings.
@@ -64,7 +63,6 @@ def create_relax_pwi(element, lattice_param, cubic, crystal, kpts, output_filena
     write(
         output_filename,
         structure,
-        Crystal=crystal,
         kpts=kpts,
         input_data=input_data_relax,
         pseudopotentials=pseudopotentials,
@@ -73,7 +71,7 @@ def create_relax_pwi(element, lattice_param, cubic, crystal, kpts, output_filena
     )
 
 
-def write_input_file(element, file_pattern, output_filename, crystal, kpts, pseudopotentials_path,
+def write_input_file(element, file_pattern, output_filename, kpts, pseudopotentials_path,
                      pseudopotentials_dict):
     """
     Writes the input file for strain calculation or other type of calculation.
@@ -82,7 +80,6 @@ def write_input_file(element, file_pattern, output_filename, crystal, kpts, pseu
     element (str): The chemical symbol of the structure's element.
     file_pattern (str): File pattern for reading the strained structure files (not used in this template).
     output_filename (str): Path to the output file for PWscf input strain ('output.pwi').
-    crystal (str): The crystal type, used by ASE.
     kpts (tuple): A tuple representing the k-points grid.
     pseudopotentials_path (str): The path to the directory containing pseudopotentials.
     pseudopotentials_dict (dict): Dictionary of element-symbol to pseudopotential filename mappings.
@@ -96,7 +93,6 @@ def write_input_file(element, file_pattern, output_filename, crystal, kpts, pseu
     write(
         output_filename,
         structure_strain,
-        Crystal=crystal,
         kpts=kpts,
         input_data=input_data_static,
         pseudopotentials=pseudopotentials,
@@ -105,42 +101,54 @@ def write_input_file(element, file_pattern, output_filename, crystal, kpts, pseu
     )
 
 
+def read_structure_xyz(xyz_file):
+    """
+    Reads a structure from a .xyz file and extracts the element, lattice parameters and whether it's cubic.
+
+    Parameters:
+    xyz_file (str): The path to the .xyz file containing the structure information.
+
+    Returns:
+    Atoms object: The first structure read from the .xyz file.
+    """
+    atoms = read(xyz_file, index=0)
+
+    return atoms
+
+
 if __name__ == '__main__':
     with open("rendered_wano.yml", "r") as file:
         params = yaml.safe_load(file)
 
-    structure_file = params.get('Structure file', None)
-    if structure_file:
-        with open(structure_file, "r") as file:
-            structure_params = yaml.safe_load(file)
-    else:
-        raise ValueError("Structure file not specified or not found.")
+    kpts = tuple(map(int, params['kpts'].split(',')))
+
+    structure_file = "structure.xyz"
+    atoms = read_structure_xyz(structure_file)
+
+    lattice_param = atoms.cell.lengths()[0]
+    cubic = True if len(set(atoms.cell.lengths())) == 1 else False
+    element = atoms.get_chemical_symbols()[0]
 
     pseudopotentials_path = '/home/ws/aj3373/pseudopotentials'
-
-    if params.get('Your path to the pseudopotential files', False) and 'pseudopotentials_path' in params:
-        pseudopotentials_path = params['custom_pseudopotentials_path']
     pseudopotentials_dict = load_pseudopotentials_dict(pseudopotentials_path)
 
     calculation_mode = params.get('Type of job')
 
     if calculation_mode == 'Relaxation':
         create_relax_pwi(
-            element=structure_params['element'],
-            lattice_param=float(structure_params['lattice_param']),
-            cubic=structure_params['cubic'],
-            crystal=structure_params['crystal'],
+            element=element,
+            lattice_param=lattice_param,
+            cubic=cubic,
             output_filename='output.pwi',
-            kpts=tuple(map(int, structure_params['kpts'].split(','))),
+            kpts=kpts,
             pseudopotentials_path=pseudopotentials_path,
             pseudopotentials_dict=pseudopotentials_dict
         )
         input_file = 'output.pwi'
     elif calculation_mode == 'Calculation energy':
         write_input_file(
-            element=structure_params['element'],
-            crystal=structure_params['crystal'],
-            kpts=tuple(map(int, structure_params['kpts'].split(','))),
+            element=element,
+            kpts=kpts,
             file_pattern='structure_strain.traj',
             output_filename='output.pwi',
             pseudopotentials_path=pseudopotentials_path,

@@ -11,7 +11,9 @@
     </WaNoMeta>
 
     <WaNoRoot name="QE_jobs">
-        <WaNoFile logical_filename="structure.yml" name="Structure file">Structure file</WaNoFile>
+        <WaNoFile logical_filename="structure.xyz" name="Structure file">Structure file</WaNoFile>
+
+        <WaNoString name="kpts">3, 3, 3</WaNoString>
 
         <WaNoDropDown name="Type of job">
             <Entry id="0" chosen="True">Relaxation</Entry>
