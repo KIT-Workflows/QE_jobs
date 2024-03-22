@@ -12,7 +12,7 @@ This script is utilized to perform Quantum ESPRESSO (QE) calculations for two ma
 
 - `rendered_wano.yml`: A YAML configuration file specifying the type of job (`Relaxation` or `Calculation energy`), parameters for the simulation, and the path to the structure file.
 
-- `structure.yml`: The essential input file for detailing the crystal structure. It needs to specify the type of elements, lattice parameters, the crystal type, and other relevant data for the calculation.
+- `structure.xyz`: The essential input file for detailing the crystal structure. It needs to specify the type of elements, lattice parameters, the crystal type, and other relevant data for the calculation.
 
 Depending on the type of job selected, different output files and processes are initiated:
 
