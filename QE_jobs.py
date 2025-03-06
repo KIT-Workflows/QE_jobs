@@ -25,17 +25,28 @@ def load_pseudopotentials_dict(pseudopotentials_path):
 
 def run_quantum_espresso(input_file, output_file, pseudopotentials_path):
     """
-    Executes a Quantum ESPRESSO calculation using the specified input and output files.
+    Executes a Quantum ESPRESSO calculation using the given input and output files.
+    If the calculation fails (i.e., returncode != 0), the job will be retried once.
+    If the second attempt also fails, a RuntimeError is raised.
 
     Parameters:
-    input_file (str): The name of the Quantum ESPRESSO input file (e.g., 'output.pwi').
-    output_file (str): The name of the Quantum ESPRESSO output file (e.g., 'output.pwo').
-    pseudopotentials_path (str): The path to the directory containing pseudopotentials.
+        input_file (str): The Quantum ESPRESSO input file (e.g., 'output.pwi').
+        output_file (str): The file where the Quantum ESPRESSO output will be written (e.g., 'output.pwo').
+        pseudopotentials_path (str): The path to the directory containing pseudopotentials.
     """
     os.environ['ESPRESSO_PSEUDO'] = pseudopotentials_path
     command = ["mpirun", "-np", "1", "pw.x", "-in", input_file]
-    with open(output_file, 'w') as file:
-        subprocess.run(command, stdout=file, stderr=subprocess.STDOUT)
+
+    for attempt in range(2):
+        with open(output_file, 'w') as file:
+            job = subprocess.run(command, stdout=file, stderr=subprocess.STDOUT)
+        if job.returncode == 0:
+            break
+        else:
+            if attempt == 0:
+                print("Execution failed, retrying...")
+            else:
+                raise RuntimeError(f"Quantum ESPRESSO failed with returncode = {job.returncode}")
 
 
 def create_relax_pwi(element, lattice_param, cubic, kpts, output_filename,
