@@ -33,8 +33,7 @@
 
     <WaNoExecCommand>
         simstack_server_mamba_source
-        eval "$(conda shell.bash hook)"
-        conda activate qe
+        micromamba activate qe
         export PSEUDOPOTENTIALS_PATH="{{- wano.pseudopotentials_path -}}"
         python QE_jobs.py
     </WaNoExecCommand>
