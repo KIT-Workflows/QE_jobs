@@ -140,8 +140,11 @@ if __name__ == '__main__':
     cubic = True if len(set(atoms.cell.lengths())) == 1 else False
     element = atoms.get_chemical_symbols()[0]
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    pseudopotentials_path = os.path.join(script_dir, 'pseudopotentials')
+    if params.get("Your path to the pseudopotential files") is True:
+        pseudopotentials_path = os.path.expandvars(params["custom_pseudopotentials_path"])
+    else:
+        pseudopotentials_path = '/home/ws/aj3373/pseudopotentials'
+
     pseudopotentials_dict = load_pseudopotentials_dict(pseudopotentials_path)
 
     calculation_mode = params.get('Type of job')
