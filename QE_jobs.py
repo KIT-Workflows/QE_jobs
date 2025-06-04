@@ -140,13 +140,13 @@ if __name__ == '__main__':
     cubic = True if len(set(atoms.cell.lengths())) == 1 else False
     element = atoms.get_chemical_symbols()[0]
 
-    if params.get('Your path to the pseudopotential files') is True:
-        pseudopotentials_path = params.get('custom_pseudopotentials_path', '').strip()
+    use_custom_path = params.get('Your path to the pseudopotential files', False)
+    if use_custom_path:
+        import re
+        raw_path = params.get('custom_pseudopotentials_path', '').strip()
+        pseudopotentials_path = re.sub(r'^\${|}$', '', raw_path)
     else:
         pseudopotentials_path = '/home/ws/aj3373/pseudopotentials'
-
-    if not os.path.isfile(os.path.join(pseudopotentials_path, "pseudopotentials.yml")):
-        raise FileNotFoundError(f"Cannot find pseudopotentials.yml in path: {pseudopotentials_path}")
 
     pseudopotentials_dict = load_pseudopotentials_dict(pseudopotentials_path)
 
